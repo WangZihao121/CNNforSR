@@ -21,10 +21,6 @@ class SRDataset(Dataset):
         lr = torch.from_numpy(lr).float()
         hr = torch.from_numpy(hr).float()
 
-        # 增加 channel 维度
-        lr = lr.unsqueeze(0)
-        hr = hr.unsqueeze(0)
-
         return lr, hr
 
     def __len__(self):
