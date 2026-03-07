@@ -1,20 +1,31 @@
-import h5py
 import torch
 from torch.utils.data import Dataset
+import h5py
+import numpy as np
 
 class SRDataset(Dataset):
     def __init__(self, h5_file):
         super(SRDataset, self).__init__()
         self.h5_file = h5_file
 
-    def __getitem__(self, idx):
+        # 读取数据长度
         with h5py.File(self.h5_file, 'r') as f:
-            # 修正：原论文生成的 H5 文件通常使用 'data' 和 'label'
-            lr = torch.from_numpy(f['data'][idx]).float()
-            hr = torch.from_numpy(f['label'][idx]).float()
-            return lr, hr
+            self.length = len(f['data'])
+
+    def __getitem__(self, index):
+        with h5py.File(self.h5_file, 'r') as f:
+            lr = np.array(f['data'][index])
+            hr = np.array(f['label'][index])
+
+        # 转为 tensor
+        lr = torch.from_numpy(lr).float()
+        hr = torch.from_numpy(hr).float()
+
+        # 增加 channel 维度
+        lr = lr.unsqueeze(0)
+        hr = hr.unsqueeze(0)
+
+        return lr, hr
 
     def __len__(self):
-        with h5py.File(self.h5_file, 'r') as f:
-            # 修正：确保此处键名与上面一致
-            return len(f['data'])
+        return self.length
