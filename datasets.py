@@ -9,9 +9,16 @@ class SRDataset(Dataset):
 
     def __getitem__(self, idx):
         with h5py.File(self.h5_file, 'r') as f:
-            # 原论文通常处理 Y 通道 [cite: 230]
+            # 读取数据并转为 float32 类型的 PyTorch 张量
             lr = torch.from_numpy(f['lr'][idx]).float()
             hr = torch.from_numpy(f['hr'][idx]).float()
+            
+            # 【关键修改】：如果数据只有二维 (H, W)，增加通道维度变成 (1, H, W)
+            if lr.dim() == 2:
+                lr = lr.unsqueeze(0)
+            if hr.dim() == 2:
+                hr = hr.unsqueeze(0)
+                
             return lr, hr
 
     def __len__(self):
