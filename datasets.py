@@ -9,13 +9,12 @@ class SRDataset(Dataset):
 
     def __getitem__(self, idx):
         with h5py.File(self.h5_file, 'r') as f:
-            # 修改处：将 'lr' 改为 'data'，将 'hr' 改为 'label'
-            # 原始论文通常在 Y 通道上进行 Patch 训练
+            # 修正：原论文生成的 H5 文件通常使用 'data' 和 'label'
             lr = torch.from_numpy(f['data'][idx]).float()
             hr = torch.from_numpy(f['label'][idx]).float()
             return lr, hr
 
     def __len__(self):
         with h5py.File(self.h5_file, 'r') as f:
-            # 修改处：将 'lr' 改为 'data'
+            # 修正：确保此处键名与上面一致
             return len(f['data'])
