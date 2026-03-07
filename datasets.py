@@ -9,18 +9,13 @@ class SRDataset(Dataset):
 
     def __getitem__(self, idx):
         with h5py.File(self.h5_file, 'r') as f:
-            # 读取数据并转为 float32 类型的 PyTorch 张量
-            lr = torch.from_numpy(f['lr'][idx]).float()
-            hr = torch.from_numpy(f['hr'][idx]).float()
-            
-            # 【关键修改】：如果数据只有二维 (H, W)，增加通道维度变成 (1, H, W)
-            if lr.dim() == 2:
-                lr = lr.unsqueeze(0)
-            if hr.dim() == 2:
-                hr = hr.unsqueeze(0)
-                
+            # 修改处：将 'lr' 改为 'data'，将 'hr' 改为 'label'
+            # 原始论文通常在 Y 通道上进行 Patch 训练
+            lr = torch.from_numpy(f['data'][idx]).float()
+            hr = torch.from_numpy(f['label'][idx]).float()
             return lr, hr
 
     def __len__(self):
         with h5py.File(self.h5_file, 'r') as f:
-            return len(f['lr'])
+            # 修改处：将 'lr' 改为 'data'
+            return len(f['data'])
